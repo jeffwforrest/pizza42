@@ -1,5 +1,4 @@
-Joseph's
-Secure a web app and API for Pizza42.
+Jeff's Secure a web app and API for Pizza42.
 
 Features:
 - Auth0 Universal Login

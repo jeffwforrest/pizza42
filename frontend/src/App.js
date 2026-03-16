@@ -24,6 +24,8 @@ function App() {
           scope: "create:orders"
         }
       });
+       const payload = JSON.parse(atob(token.split('.')[1]));
+      console.log('Token payload:', JSON.stringify(payload, null, 2));
 
       const response = await fetch("http://localhost:4000/orders", {
         method: "POST",

@@ -2,23 +2,26 @@ import React, { useState } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 
 function App() {
-
   const {
     loginWithRedirect,
     logout,
     user,
     isAuthenticated,
-    getAccessTokenSilently
+    getAccessTokenSilently,
+    isLoading
   } = useAuth0();
 
   const [orders, setOrders] = useState([]);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const placeOrder = async () => {
-    try {
+    setErrorMessage("");
 
+    try {
       const token = await getAccessTokenSilently({
         authorizationParams: {
-          audience: "https://api.pizza42.com/orders"
+          audience: "https://api.pizza42.com/orders",
+          scope: "create:orders"
         }
       });
 
@@ -33,29 +36,46 @@ function App() {
         })
       });
 
-      const data = await response.json();
+      const contentType = response.headers.get("content-type") || "";
+      let data;
 
-      setOrders(data.orders);
+      if (contentType.includes("application/json")) {
+        data = await response.json();
+      } else {
+        const text = await response.text();
+        throw new Error(`Server returned ${response.status}: ${text}`);
+      }
 
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to place order");
+      }
+
+      setOrders(data.orders || []);
     } catch (error) {
       console.error("Error placing order:", error);
+      setErrorMessage(error.message || "Something went wrong placing the order.");
     }
   };
 
-  return (
-    <div style={{
-      padding: 40,
-      fontFamily: "Arial",
-      minHeight: "100vh",
-      background: "linear-gradient(135deg, #8B0000, #FF4500)",
-      color: "white",
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      justifyContent: "center"
-    }}>
+  if (isLoading) {
+    return <div style={{ padding: 40, fontFamily: "Arial" }}>Loading...</div>;
+  }
 
-      <h1>Pizza42 - Home of the 42" Pizza!</h1>
+  return (
+    <div
+      style={{
+        padding: 40,
+        fontFamily: "Arial",
+        minHeight: "100vh",
+        background: "linear-gradient(135deg, #8B0000, #FF4500)",
+        color: "white",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center"
+      }}
+    >
+      <h1>Pizza42 - Home of the 42&quot; Pizza!</h1>
 
       {!isAuthenticated && (
         <button
@@ -78,7 +98,7 @@ function App() {
 
       {isAuthenticated && (
         <>
-          <p>Welcome to Pizza42: {user.name}!</p>
+          <p>Welcome to Pizza42: {user?.name || user?.email || "Customer"}!</p>
 
           <button
             onClick={placeOrder}
@@ -89,21 +109,33 @@ function App() {
               color: "#8B0000",
               fontWeight: "bold",
               borderRadius: "6px",
-              cursor: "pointer"
+              cursor: "pointer",
+              marginTop: "10px"
             }}
           >
             Order Pizza Now!
           </button>
 
+          {errorMessage && (
+            <p
+              style={{
+                color: "#ffe6e6",
+                marginTop: "20px",
+                maxWidth: "700px",
+                textAlign: "center"
+              }}
+            >
+              {errorMessage}
+            </p>
+          )}
+
           <h3 style={{ marginTop: "30px" }}>Order History</h3>
 
-          <ul>
+          <ul style={{ paddingLeft: "20px" }}>
             {orders.map((order, index) => (
               <li key={index}>{order}</li>
             ))}
           </ul>
-
-          <br />
 
           <button
             onClick={() =>
@@ -111,7 +143,7 @@ function App() {
             }
             style={{
               marginTop: "20px",
-              padding: "10px",
+              padding: "10px 16px",
               borderRadius: "6px",
               border: "none",
               cursor: "pointer"
@@ -119,10 +151,8 @@ function App() {
           >
             Logout
           </button>
-
         </>
       )}
-
     </div>
   );
 }

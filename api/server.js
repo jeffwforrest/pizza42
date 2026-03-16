@@ -3,8 +3,7 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 
-const { auth } = require("express-oauth2-jwt-bearer");
-
+const { auth, requiredScopes } = require("express-oauth2-jwt-bearer");
 const app = express();
 
 app.use(cors());
@@ -18,7 +17,7 @@ const checkJwt = auth({
 
 let orders = [];
 
-app.post("/orders", checkJwt, (req, res) => {
+app.post("/orders", checkJwt, requiredScopes("create:orders"), (req, res) => {
 
   console.log("JWT payload:", req.auth.payload);
 

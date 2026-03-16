@@ -1,4 +1,4 @@
-Jeff Forrest's Auth0 Challenge 
+Joseph's
 Secure a web app and API for Pizza42.
 
 Features:

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
-
+import pizzaLogo from "./pizza42pie.jpeg";
 function App() {
   const {
     loginWithRedirect,
@@ -69,7 +69,10 @@ function App() {
         padding: 40,
         fontFamily: "Arial",
         minHeight: "100vh",
-        background: "linear-gradient(135deg, #8B0000, #FF4500)",
+        backgroundImage: `url(${pizzaLogo})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
         color: "white",
         display: "flex",
         flexDirection: "column",
@@ -77,7 +80,30 @@ function App() {
         justifyContent: "center"
       }}
     >
-      <h1>Pizza42 - Home of the 42&quot; Pizza!</h1>
+
+<div style={{ textAlign: "center" }}>
+  <h1
+    style={{
+      fontSize: "4rem",
+      margin: 0,
+      lineHeight: 1.1,
+      color: "black"
+    }}
+  >
+    Pizza42
+  </h1>
+  <h2
+    style={{
+      fontSize: "2rem",
+      marginTop: "8px",
+      marginBottom: 0,
+      lineHeight: 1.2,
+      color: "black"
+    }}
+  >
+    Home of the 42&quot; Pizza!
+  </h2>
+</div>
 
       {!isAuthenticated && (
         <button
@@ -100,7 +126,8 @@ function App() {
 
       {isAuthenticated && (
         <>
-          <p>Welcome to Pizza42: {user?.name || user?.email || "Customer"}!</p>
+          <p style={{ color: "black", fontsize: "1.5rem", fontweight: "bold"}}>
+          Welcome to Pizza42: {user?.name || user?.email || "Customer"}!</p>
 
           <button
             onClick={placeOrder}
